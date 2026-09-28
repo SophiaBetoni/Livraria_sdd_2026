@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Livraria SDD — Catálogo & Pedidos</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-hover: #1e40af;
+      --secondary: #0d9488;
+      --secondary-hover: #0f766e;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --radius: 10px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+
+    header {
+      background-color: var(--primary);
+      color: white;
+      padding: 1.25rem 2rem;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo-area h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-badges {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .badge-btn {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 9999px;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.2s;
+    }
+
+    .badge-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .counter {
+      background: var(--warning);
+      color: #111;
+      padding: 0.1rem 0.45rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    /* Feedback Alerts */
+    .alerts-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-width: 380px;
+      width: calc(100% - 3rem);
+    }
+
+    .alert {
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      font-size: 0.925rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      animation: slideIn 0.3s ease-out;
+      background: white;
+      border-left: 5px solid;
+    }
+
+    .alert-success {
+      border-left-color: var(--success);
+      color: #065f46;
+      background: #ecfdf5;
+    }
+
+    .alert-error {
+      border-left-color: var(--danger);
+      color: #991b1b;
+      background: #fef2f2;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Section Cards */
+    .section-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+
+    /* Forms & Inputs */
+    .form-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      flex: 1;
+      min-width: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .form-group label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.925rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #fff;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.15);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.25rem;
+      font-size: 0.925rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: var(--secondary);
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: var(--secondary-hover);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+    .btn-danger:hover {
+      background: var(--danger-hover);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover {
+      background: #f1f5f9;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Search bar */
+    .search-box {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-box input {
+      flex: 1;
+    }
+
+    /* Catalog Cards Grid */
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .book-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .book-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .book-card-header {
+      margin-bottom: 0.75rem;
+    }
+
+    .book-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1.3;
+      margin-bottom: 0.25rem;
+    }
+
+    .book-author {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .book-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0.75rem 0;
+      font-size: 0.85rem;
+    }
+
+    .badge-edition {
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .badge-stock {
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .badge-stock.in-stock {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .badge-stock.out-stock {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .book-price {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 1rem;
+    }
+
+    .book-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .quantity-control label {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .quantity-control input {
+      width: 70px;
+      padding: 0.4rem;
+      text-align: center;
+    }
+
+    /* Layout for two-column desktop: Main content + Sidebar */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 992px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cart & Wishlist tables / items */
+    .cart-items {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      gap: 1rem;
+    }
+
+    .cart-item-info {
+      flex: 1;
+    }
+
+    .cart-item-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .cart-item-meta {
+      font-size: 0.825rem;
+      color: var(--text-muted);
+    }
+
+    .cart-item-subtotal {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 1rem;
+      white-space: nowrap;
+    }
+
+    .cart-total-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: #e2e8f0;
+      border-radius: 6px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* Wishlist list */
+    .wishlist-items {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .wishlist-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.65rem 0.85rem;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    /* Radio Group */
+    .radio-group {
+      display: flex;
+      gap: 1.5rem;
+      margin: 0.5rem 0 1rem;
+    }
+
+    .radio-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    /* Order Result Modal / Card */
+    .order-success-box {
+      display: none;
+      background: #ecfdf5;
+      border: 2px solid var(--success);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-top: 1rem;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .order-success-box h4 {
+      color: #065f46;
+      font-size: 1.2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .order-success-box p {
+      margin-bottom: 0.35rem;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Alertas Flutuantes -->
+  <div id="alertsContainer" class="alerts-container"></div>
+
+  <!-- Cabeçalho -->
+  <header>
+    <div class="header-container">
+      <div class="logo-area">
+        <h1>📚 Livraria SDD</h1>
+      </div>
+      <div class="header-badges">
+        <a href="#carrinhoSection" class="badge-btn">
+          🛒 Carrinho <span id="cartCountBadge" class="counter">0</span>
+        </a>
+        <a href="#desejosSection" class="badge-btn">
+          ⭐ Desejos <span id="wishlistCountBadge" class="counter">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- 1. Cadastro de Cliente -->
+    <section class="section-card">
+      <h2 class="section-title">👤 Cadastro de Cliente</h2>
+      <form id="clienteForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="clienteNome">Nome Completo *</label>
+            <input type="text" id="clienteNome" placeholder="Ex.: Ana Silva" required>
+          </div>
+          <div class="form-group">
+            <label for="clienteEmail">E-mail *</label>
+            <input type="email" id="clienteEmail" placeholder="Ex.: ana@email.com" required>
+          </div>
+          <div class="form-group" style="justify-content: flex-end; flex: 0;">
+            <button type="submit" class="btn btn-primary" style="height: 42px;">
+              Cadastrar Cliente
+            </button>
+          </div>
+        </div>
+      </form>
+      <div id="clienteStatus" style="font-size: 0.875rem; color: var(--secondary); font-weight: 600;"></div>
+    </section>
+
+    <!-- Layout Dividido: Catálogo à esquerda | Carrinho, Desejos e Pedido à direita -->
+    <div class="main-grid">
+
+      <!-- Coluna Esquerda: Catálogo e Pesquisa -->
+      <div>
+        <section class="section-card">
+          <h2 class="section-title">📖 Catálogo de Livros</h2>
+
+          <!-- Pesquisa de Livros -->
+          <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Pesquisar livros por título (ex.: Hobbit, Python, Code)...">
+            <button type="button" id="searchBtn" class="btn btn-primary">Pesquisar</button>
+            <button type="button" id="clearSearchBtn" class="btn btn-outline">Limpar</button>
+          </div>
+
+          <!-- Grade de Livros -->
+          <div id="booksGrid" class="books-grid">
+            <div class="empty-state">Carregando catálogo...</div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Coluna Direita: Carrinho, Lista de Desejos e Finalização de Pedido -->
+      <div style="display: flex; flex-direction: column; gap: 2rem;">
+
+        <!-- Carrinho de Compras -->
+        <section id="carrinhoSection" class="section-card">
+          <h2 class="section-title">🛒 Carrinho de Compras</h2>
+          
+          <div id="cartItems" class="cart-items">
+            <div class="empty-state">Seu carrinho está vazio.</div>
+          </div>
+
+          <div class="cart-total-bar">
+            <span>Total da Compra:</span>
+            <span id="cartTotalDisplay">R$ 0,00</span>
+          </div>
+        </section>
+
+        <!-- Finalização do Pedido -->
+        <section class="section-card">
+          <h2 class="section-title">💳 Finalizar Pedido</h2>
+          
+          <form id="checkoutForm">
+            <!-- Forma de Pagamento -->
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <label><strong>Forma de Pagamento:</strong></label>
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="formaPagamento" value="pix" checked>
+                  Pix
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="formaPagamento" value="cartao">
+                  Cartão
+                </label>
+              </div>
+            </div>
+
+            <!-- Modalidade de Recebimento -->
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <label><strong>Modalidade de Recebimento:</strong></label>
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="modalidade" value="entrega" checked>
+                  Entrega em Casa
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="modalidade" value="retirada">
+                  Retirada na Loja
+                </label>
+              </div>
+            </div>
+
+            <!-- Campo Endereço (visível quando entrega) -->
+            <div id="enderecoGroup" class="form-group" style="margin-bottom: 1rem;">
+              <label for="pedidoEndereco">Endereço de Entrega *</label>
+              <input type="text" id="pedidoEndereco" placeholder="Rua, número, complemento, bairro, cidade">
+            </div>
+
+            <!-- Campo Loja (visível quando retirada) -->
+            <div id="lojaGroup" class="form-group" style="margin-bottom: 1.25rem; display: none;">
+              <label for="pedidoLoja">Loja de Retirada *</label>
+              <input type="text" id="pedidoLoja" placeholder="Ex.: Loja Centro, Loja Shopping">
+            </div>
+
+            <button type="submit" id="btnFinalizar" class="btn btn-secondary" style="width: 100%;">
+              Confirmar Pedido
+            </button>
+          </form>
+
+          <!-- Confirmação do Pedido -->
+          <div id="orderSuccessBox" class="order-success-box">
+            <h4>✅ Pedido Confirmado!</h4>
+            <p><strong>Identificador:</strong> #<span id="resPedidoId"></span></p>
+            <p><strong>Status:</strong> <span id="resPedidoStatus"></span></p>
+            <p><strong>Pagamento:</strong> <span id="resPedidoPagamento"></span></p>
+            <p><strong>Modalidade:</strong> <span id="resPedidoModalidade"></span></p>
+            <p id="resPedidoDestinoRow"><strong>Destino:</strong> <span id="resPedidoDestino"></span></p>
+            <p><strong>Valor Total:</strong> <span id="resPedidoTotal"></span></p>
+            <p><strong>Itens:</strong> <span id="resPedidoItens"></span></p>
+          </div>
+        </section>
+
+        <!-- Lista de Desejos -->
+        <section id="desejosSection" class="section-card">
+          <h2 class="section-title">⭐ Lista de Desejos</h2>
+          <div id="wishlistItems" class="wishlist-items">
+            <div class="empty-state">Nenhum livro na lista de desejos.</div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Estado da aplicação
+    let catalogo = [];
+    let carrinhoData = { itens: [], total: 0 };
+    let desejosData = [];
+
+    // Formatação de Moeda BRL
+    function formatarPreco(valor) {
+      return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    // Exibição de alertas
+    function showAlert(mensagem, tipo = 'success') {
+      const container = document.getElementById('alertsContainer');
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${tipo}`;
+      alert.innerHTML = `
+        <span>${mensagem}</span>
+        <button style="background:none; border:none; cursor:pointer; font-weight:bold; margin-left:0.5rem;" onclick="this.parentElement.remove()">✕</button>
+      `;
+      container.appendChild(alert);
+      setTimeout(() => {
+        alert.remove();
+      }, 4000);
+    }
+
+    // 1. Carregar Catálogo
+    async function carregarLivros(termo = '') {
+      try {
+        let url = '/api/livros';
+        if (termo && termo.trim() !== '') {
+          url += `?q=${encodeURIComponent(termo.trim())}`;
+        }
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Falha ao consultar livros.');
+        catalogo = await res.json();
+        renderizarCatalogo();
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    }
+
+    function renderizarCatalogo() {
+      const container = document.getElementById('booksGrid');
+      if (!catalogo || catalogo.length === 0) {
+        container.innerHTML = '<div class="empty-state">Nenhum livro encontrado.</div>';
+        return;
+      }
+
+      container.innerHTML = catalogo.map(livro => {
+        const disponivel = livro.estoque > 0;
+        return `
+          <div class="book-card" data-id="${livro.id}">
+            <div class="book-card-header">
+              <div class="book-title">${livro.titulo}</div>
+              <div class="book-author">Por ${livro.autor}</div>
+              <div class="book-details">
+                <span class="badge-edition">${livro.edicao}</span>
+                <span class="badge-stock ${disponivel ? 'in-stock' : 'out-stock'}">
+                  ${disponivel ? `Estoque: ${livro.estoque}` : 'Esgotado'}
+                </span>
+              </div>
+            </div>
+            
+            <div>
+              <div class="book-price">${formatarPreco(livro.preco)}</div>
+              
+              <div class="book-actions">
+                <div class="quantity-control">
+                  <label for="qtd-${livro.id}">Qtd:</label>
+                  <input type="number" id="qtd-${livro.id}" value="1" min="1" max="${livro.estoque}" ${!disponivel ? 'disabled' : ''}>
+                </div>
+                <button 
+                  type="button" 
+                  class="btn btn-primary" 
+                  onclick="adicionarAoCarrinho(${livro.id})"
+                  ${!disponivel ? 'disabled' : ''}
+                >
+                  Adicionar ao Carrinho
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-outline" 
+                  onclick="adicionarAosDesejos(${livro.id})"
+                >
+                  ⭐ Adicionar aos Desejos
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 2. Cadastro de Cliente
+    document.getElementById('clienteForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nomeInput = document.getElementById('clienteNome');
+      const emailInput = document.getElementById('clienteEmail');
+      const nome = nomeInput.value.trim();
+      const email = emailInput.value.trim();
+
+      try {
+        const res = await fetch('/api/clientes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome, email })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.erro || 'Erro ao cadastrar cliente.');
+        }
+
+        showAlert(`Cliente ${data.nome} cadastrado com sucesso! ID #${data.id}`);
+        document.getElementById('clienteStatus').textContent = `Cliente ativo: ${data.nome} (${data.email})`;
+        nomeInput.value = '';
+        emailInput.value = '';
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    });
+
+    // 3. Pesquisa de Livros
+    document.getElementById('searchBtn').addEventListener('click', () => {
+      const q = document.getElementById('searchInput').value;
+      carregarLivros(q);
+    });
+
+    document.getElementById('searchInput').addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') {
+        carregarLivros(e.target.value);
+      }
+    });
+
+    document.getElementById('clearSearchBtn').addEventListener('click', () => {
+      document.getElementById('searchInput').value = '';
+      carregarLivros('');
+    });
+
+    // 4. Carrinho de Compras
+    async function carregarCarrinho() {
+      try {
+        const res = await fetch('/api/carrinho');
+        if (!res.ok) throw new Error('Erro ao buscar carrinho.');
+        carrinhoData = await res.json();
+        renderizarCarrinho();
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    }
+
+    function renderizarCarrinho() {
+      const itemsContainer = document.getElementById('cartItems');
+      const totalDisplay = document.getElementById('cartTotalDisplay');
+      const badgeCount = document.getElementById('cartCountBadge');
+
+      const totalItens = (carrinhoData.itens || []).reduce((acc, item) => acc + item.quantidade, 0);
+      badgeCount.textContent = totalItens;
+
+      if (!carrinhoData.itens || carrinhoData.itens.length === 0) {
+        itemsContainer.innerHTML = '<div class="empty-state">Seu carrinho está vazio.</div>';
+        totalDisplay.textContent = formatarPreco(0);
+        return;
+      }
+
+      itemsContainer.innerHTML = carrinhoData.itens.map(item => `
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <div class="cart-item-title">${item.titulo || (item.livro && item.livro.titulo)}</div>
+            <div class="cart-item-meta">
+              Qtd: ${item.quantidade} × ${formatarPreco(item.preco || (item.livro && item.livro.preco))}
+            </div>
+          </div>
+          <div class="cart-item-subtotal">
+            ${formatarPreco(item.subtotal)}
+          </div>
+          <button 
+            type="button" 
+            class="btn btn-danger" 
+            style="padding: 0.35rem 0.65rem; font-size: 0.8rem;" 
+            onclick="removerDoCarrinho(${item.livro_id || (item.livro && item.livro.id)})"
+            title="Remover do carrinho"
+          >
+            🗑️
+          </button>
+        </div>
+      `).join('');
+
+      totalDisplay.textContent = formatarPreco(carrinhoData.total || 0);
+    }
+
+    async function adicionarAoCarrinho(livroId) {
+      const inputQtd = document.getElementById(`qtd-${livroId}`);
+      const quantidade = inputQtd ? parseInt(inputQtd.value, 10) : 1;
+
+      try {
+        const res = await fetch('/api/carrinho', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ livro_id: livroId, quantidade: quantidade })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.erro || 'Erro ao adicionar livro ao carrinho.');
+        }
+
+        showAlert(`Item adicionado ao carrinho! (${quantidade} unidade(s))`);
+        await carregarCarrinho();
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    }
+
+    async function removerDoCarrinho(livroId) {
+      try {
+        const res = await fetch(`/api/carrinho/${livroId}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.erro || 'Erro ao remover item do carrinho.');
+        }
+
+        showAlert('Item removido do carrinho.');
+        await carregarCarrinho();
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    }
+
+    // 5. Lista de Desejos
+    async function carregarDesejos() {
+      try {
+        const res = await fetch('/api/desejos');
+        if (!res.ok) throw new Error('Erro ao buscar lista de desejos.');
+        desejosData = await res.json();
+        renderizarDesejos();
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    }
+
+    function renderizarDesejos() {
+      const container = document.getElementById('wishlistItems');
+      const badge = document.getElementById('wishlistCountBadge');
+      badge.textContent = desejosData.length;
+
+      if (!desejosData || desejosData.length === 0) {
+        container.innerHTML = '<div class="empty-state">Nenhum livro na lista de desejos.</div>';
+        return;
+      }
+
+      container.innerHTML = desejosData.map(livro => `
+        <div class="wishlist-item">
+          <div>
+            <strong>${livro.titulo}</strong>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">${formatarPreco(livro.preco)} • Estoque: ${livro.estoque}</div>
+          </div>
+          <button 
+            type="button" 
+            class="btn btn-outline" 
+            style="padding: 0.35rem 0.65rem; font-size: 0.8rem;"
+            onclick="adicionarAoCarrinho(${livro.id})"
+            ${livro.estoque <= 0 ? 'disabled' : ''}
+          >
+            🛒 Comprar
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function adicionarAosDesejos(livroId) {
+      try {
+        const res = await fetch(`/api/desejos/${livroId}`, {
+          method: 'POST'
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.erro || 'Erro ao adicionar à lista de desejos.');
+        }
+
+        showAlert('Livro adicionado à sua Lista de Desejos! ⭐');
+        await carregarDesejos();
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    }
+
+    // 6. Finalização do Pedido (Checkout)
+    const modalidadeRadios = document.getElementsByName('modalidade');
+    const enderecoGroup = document.getElementById('enderecoGroup');
+    const lojaGroup = document.getElementById('lojaGroup');
+
+    function alternarModalidade() {
+      const selecionado = document.querySelector('input[name="modalidade"]:checked').value;
+      if (selecionado === 'entrega') {
+        enderecoGroup.style.display = 'block';
+        lojaGroup.style.display = 'none';
+      } else {
+        enderecoGroup.style.display = 'none';
+        lojaGroup.style.display = 'block';
+      }
+    }
+
+    modalidadeRadios.forEach(radio => {
+      radio.addEventListener('change', alternarModalidade);
+    });
+
+    document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formaPagamento = document.querySelector('input[name="formaPagamento"]:checked').value;
+      const modalidade = document.querySelector('input[name="modalidade"]:checked').value;
+      const endereco = document.getElementById('pedidoEndereco').value.trim();
+      const loja = document.getElementById('pedidoLoja').value.trim();
+
+      const payload = {
+        forma_pagamento: formaPagamento,
+        modalidade: modalidade
+      };
+
+      if (modalidade === 'entrega') {
+        payload.endereco = endereco;
+      } else if (modalidade === 'retirada') {
+        payload.loja = loja;
+      }
+
+      try {
+        const res = await fetch('/api/pedidos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const pedido = await res.json();
+        if (!res.ok) {
+          throw new Error(pedido.erro || 'Erro ao finalizar pedido.');
+        }
+
+        // Exibir caixa de sucesso
+        const successBox = document.getElementById('orderSuccessBox');
+        document.getElementById('resPedidoId').textContent = pedido.id;
+        document.getElementById('resPedidoStatus').textContent = pedido.status;
+        document.getElementById('resPedidoPagamento').textContent = pedido.forma_pagamento.toUpperCase();
+        document.getElementById('resPedidoModalidade').textContent = pedido.modalidade === 'entrega' ? 'Entrega em Casa' : 'Retirada na Loja';
+        
+        const destinoLabel = pedido.modalidade === 'entrega' ? `Endereço: ${pedido.endereco}` : `Loja: ${pedido.loja}`;
+        document.getElementById('resPedidoDestino').textContent = destinoLabel;
+        document.getElementById('resPedidoTotal').textContent = formatarPreco(pedido.total);
+        
+        const nomesItens = (pedido.itens || []).map(i => `${i.titulo} (${i.quantidade}x)`).join(', ');
+        document.getElementById('resPedidoItens').textContent = nomesItens;
+        
+        successBox.style.display = 'block';
+        showAlert('🎉 Pedido confirmado com sucesso!');
+
+        // Limpar inputs de checkout
+        document.getElementById('pedidoEndereco').value = '';
+        document.getElementById('pedidoLoja').value = '';
+
+        // Atualizar catálogo e carrinho (estoque atualizado e carrinho esvaziado)
+        await carregarCarrinho();
+        await carregarLivros(document.getElementById('searchInput').value);
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    });
+
+    // Inicialização da Página
+    window.addEventListener('DOMContentLoaded', () => {
+      carregarLivros();
+      carregarCarrinho();
+      carregarDesejos();
+    });
+  </script>
+</body>
+</html>
